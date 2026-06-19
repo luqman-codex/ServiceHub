@@ -8,17 +8,12 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type {
@@ -28,8 +23,9 @@ import type {
 import { useService } from '../../hooks/queries';
 import { useCreateBooking } from '../../hooks/mutations';
 import { apiErrorMessage } from '../../lib/api';
-import { formatDateTime, formatMoney } from '../../lib/format';
+import { formatMoney } from '../../lib/format';
 import {
+  DateTimeInput,
   ErrorState,
   FormField,
   LoadingState,
@@ -66,8 +62,6 @@ export function CreateBookingScreen() {
   const createBooking = useCreateBooking();
 
   const [scheduledAt, setScheduledAt] = useState<Date>(defaultScheduledAt);
-  const [showPicker, setShowPicker] = useState(false);
-  const [pickerMode, setPickerMode] = useState<'date' | 'time'>('date');
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -77,35 +71,6 @@ export function CreateBookingScreen() {
   } = useForm<CreateBookingForm>({
     defaultValues: { address: '', notes: '' },
   });
-
-  const openPicker = () => {
-    setPickerMode('date');
-    setShowPicker(true);
-  };
-
-  // Android fires onChange once per modal; we chain date → time (05 §9.5 UX note).
-  const onPickerChange = (event: DateTimePickerEvent, selected?: Date) => {
-    if (Platform.OS === 'android') setShowPicker(false);
-
-    if (event.type === 'dismissed' || !selected) {
-      setShowPicker(false);
-      return;
-    }
-
-    if (pickerMode === 'date') {
-      // Keep the previously chosen time, swap in the new Y/M/D, then ask for time.
-      const next = new Date(scheduledAt);
-      next.setFullYear(selected.getFullYear(), selected.getMonth(), selected.getDate());
-      setScheduledAt(next);
-      setPickerMode('time');
-      setShowPicker(true);
-    } else {
-      const next = new Date(scheduledAt);
-      next.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
-      setScheduledAt(next);
-      setShowPicker(false);
-    }
-  };
 
   const isFuture = scheduledAt.getTime() > Date.now();
 
@@ -174,35 +139,18 @@ export function CreateBookingScreen() {
 
         <View style={styles.field}>
           <Text style={styles.label}>Date & time</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Choose date and time"
-            onPress={openPicker}
-            style={({ pressed }) => [
-              styles.pickerButton,
-              !isFuture && styles.pickerButtonError,
-              pressed && styles.pickerButtonPressed,
-            ]}
-          >
-            <Text style={styles.pickerText}>{formatDateTime(scheduledAt.toISOString())}</Text>
-            <Text style={styles.pickerHint}>Change</Text>
-          </Pressable>
+          <DateTimeInput
+            value={scheduledAt}
+            onChange={setScheduledAt}
+            minimumDate={new Date()}
+            hasError={!isFuture}
+          />
           {!isFuture ? (
             <Text style={styles.fieldError}>
               Please choose a date and time in the future.
             </Text>
           ) : null}
         </View>
-
-        {showPicker ? (
-          <DateTimePicker
-            value={scheduledAt}
-            mode={pickerMode}
-            minimumDate={new Date()}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={onPickerChange}
-          />
-        ) : null}
 
         <Controller
           control={control}

@@ -10,6 +10,9 @@ export type { PrimaryButtonProps } from './PrimaryButton';
 export { FormField } from './FormField';
 export type { FormFieldProps } from './FormField';
 
+export { DateTimeInput } from './DateTimeInput';
+export type { DateTimeInputProps } from './DateTimeInput';
+
 export { StatusBadge } from './StatusBadge';
 export type { StatusBadgeProps } from './StatusBadge';
 

@@ -67,6 +67,24 @@ emulator, `localhost` means *that device itself*, not your computer. Use the cor
 | **Android emulator (AVD)** | the emulator VM | `http://10.0.2.2:4000/api/v1` (special alias to the host's loopback) |
 | **iOS simulator** | the Mac itself | `http://localhost:4000/api/v1` |
 
+## Run in a web browser (easiest — no phone or Expo Go needed)
+
+This Expo app also targets the **web**, so you can run the exact same React Native app in a
+browser — ideal if you can't use Expo Go (e.g. an Expo SDK / Expo Go version mismatch). The
+native-only bits have web fallbacks: the JWT uses `localStorage` instead of SecureStore, and the
+date/time field uses a native browser `<input type="datetime-local">` instead of the native picker
+(Metro picks `DateTimeInput.web.tsx` automatically for web).
+
+```bash
+# from mobile/  (backend must be running on :4000)
+npx expo start --web        # serves the app at http://localhost:8081
+```
+Then open **http://localhost:8081** in any browser and log in with the sample customer below.
+For the web target, set `EXPO_PUBLIC_API_BASE_URL=http://localhost:4000/api/v1` in `.env`
+(the browser runs on the same machine as the backend, so `localhost` is correct here).
+
+> **Web deps:** `react-native-web`, `react-dom`, `@expo/metro-runtime` (already installed).
+
 ## Sample customer login
 
 ```
