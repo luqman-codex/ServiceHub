@@ -5,7 +5,16 @@
 // public sample with a local topical poster frame.
 import type { ServiceDTO, CategoryDTO } from '@/types/api';
 
-const SAMPLE_VIDEO = 'https://media.w3.org/2010/05/sintel/trailer.mp4';
+// A small pool of reliable public sample clips, varied per service so the preview is not
+// always the same. (Topical stock video needs a keyed API; these are stable demo clips
+// shown behind a topical poster frame.)
+const VIDEOS = [
+  'https://media.w3.org/2010/05/sintel/trailer.mp4',
+  'https://media.w3.org/2010/05/bunny/movie.mp4',
+  'https://vjs.zencdn.net/v/oceans.mp4',
+  'https://media.w3.org/2010/05/video/movie_300.mp4',
+  'https://download.samplelib.com/mp4/sample-10s.mp4',
+];
 
 const SETS: Record<string, string[]> = {
   cleaning: ['/media/cleaning-1.jpg', '/media/cleaning-2.jpg', '/media/cleaning-3.jpg', '/media/cleaning-4.jpg'],
@@ -44,8 +53,9 @@ export interface MediaItem {
 /** Gallery for the service-detail slider: a preview video first, then topical images. */
 export function serviceMedia(service: ServiceDTO): MediaItem[] {
   const imgs = rotate(setFor(service.category), service.id);
+  const video = VIDEOS[service.id % VIDEOS.length];
   const items: MediaItem[] = [
-    { type: 'video', src: SAMPLE_VIDEO, poster: imgs[0], fallback: imgs[0], alt: `${service.name} preview` },
+    { type: 'video', src: video, poster: imgs[0], fallback: imgs[0], alt: `${service.name} preview` },
   ];
   if (service.image_url) {
     items.push({ type: 'image', src: service.image_url, fallback: imgs[0], alt: service.name });
