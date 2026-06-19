@@ -1,0 +1,117 @@
+erDiagram
+    ROLES ||--o{ USERS : "classifies"
+    USERS ||--o| PROVIDER_PROFILES : "has (provider only)"
+    USERS ||--o{ PROVIDER_AVAILABILITY : "declares (provider only)"
+    USERS ||--o{ BOOKINGS : "places (as customer)"
+    USERS ||--o{ BOOKINGS : "fulfills (as provider)"
+    CATEGORIES ||--o{ SERVICES : "groups"
+    SERVICES ||--o{ BOOKINGS : "is booked as"
+    BOOKINGS ||--o| PAYMENTS : "is paid by (mocked)"
+    USERS ||--o{ NOTIFICATIONS : "receives (mocked)"
+    BOOKINGS ||--o{ NOTIFICATIONS : "triggers (mocked)"
+
+    ROLES {
+        bigint id PK
+        varchar name UK "CUSTOMER|PROVIDER|ADMIN"
+        varchar description
+        datetime created_at
+        datetime updated_at
+    }
+    USERS {
+        bigint id PK
+        bigint role_id FK
+        varchar name
+        varchar email UK
+        varchar phone
+        varchar password_hash
+        tinyint is_active
+        datetime created_at
+        datetime updated_at
+    }
+    PROVIDER_PROFILES {
+        bigint id PK
+        bigint user_id FK,UK
+        text bio
+        varchar skills
+        varchar service_area
+        decimal rating
+        tinyint is_verified
+        datetime created_at
+        datetime updated_at
+    }
+    PROVIDER_AVAILABILITY {
+        bigint id PK
+        bigint provider_id FK
+        enum day_of_week
+        time start_time
+        time end_time
+        tinyint is_available
+        datetime created_at
+        datetime updated_at
+    }
+    CATEGORIES {
+        bigint id PK
+        varchar name UK
+        varchar slug UK
+        text description
+        varchar icon_url
+        tinyint is_active
+        datetime created_at
+        datetime updated_at
+    }
+    SERVICES {
+        bigint id PK
+        bigint category_id FK
+        varchar name
+        text description
+        decimal price
+        char currency
+        int duration_minutes
+        varchar image_url
+        tinyint is_active
+        datetime created_at
+        datetime updated_at
+    }
+    BOOKINGS {
+        bigint id PK
+        bigint customer_id FK
+        bigint provider_id FK "nullable"
+        bigint service_id FK
+        enum status
+        datetime scheduled_at
+        decimal total_price
+        char currency
+        varchar address
+        text notes
+        text cancellation_reason
+        datetime accepted_at
+        datetime started_at
+        datetime completed_at
+        datetime cancelled_at
+        datetime created_at
+        datetime updated_at
+    }
+    PAYMENTS {
+        bigint id PK
+        bigint booking_id FK,UK
+        decimal amount
+        char currency
+        enum method
+        enum status
+        varchar transaction_ref UK
+        datetime paid_at
+        datetime created_at
+        datetime updated_at
+    }
+    NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        bigint booking_id FK "nullable"
+        enum type
+        varchar title
+        text body
+        tinyint is_read
+        datetime read_at
+        datetime created_at
+        datetime updated_at
+    }
