@@ -16,12 +16,16 @@ const VIDEOS = [
   'https://download.samplelib.com/mp4/sample-10s.mp4',
 ];
 
+// 12 bundled topical photos per category (public/media/<cat>-1..12.jpg).
+const PER_CATEGORY = 12;
+const mk = (cat: string) =>
+  Array.from({ length: PER_CATEGORY }, (_, i) => `/media/${cat}-${i + 1}.jpg`);
 const SETS: Record<string, string[]> = {
-  cleaning: ['/media/cleaning-1.jpg', '/media/cleaning-2.jpg', '/media/cleaning-3.jpg', '/media/cleaning-4.jpg'],
-  plumbing: ['/media/plumbing-1.jpg', '/media/plumbing-2.jpg', '/media/plumbing-3.jpg', '/media/plumbing-4.jpg'],
-  electrical: ['/media/electrical-1.jpg', '/media/electrical-2.jpg', '/media/electrical-3.jpg', '/media/electrical-4.jpg'],
-  salon: ['/media/salon-1.jpg', '/media/salon-2.jpg', '/media/salon-3.jpg', '/media/salon-4.jpg'],
-  home: ['/media/home-1.jpg', '/media/home-2.jpg', '/media/home-3.jpg', '/media/home-4.jpg'],
+  cleaning: mk('cleaning'),
+  plumbing: mk('plumbing'),
+  electrical: mk('electrical'),
+  salon: mk('salon'),
+  home: mk('home'),
 };
 
 function setFor(category?: { slug?: string; name?: string } | null): string[] {
@@ -52,10 +56,12 @@ export interface MediaItem {
 
 /** Gallery for the service-detail slider: a preview video first, then topical images. */
 export function serviceMedia(service: ServiceDTO): MediaItem[] {
-  const imgs = rotate(setFor(service.category), service.id);
+  const base = setFor(service.category);
+  const imgs = rotate(base, service.id);
   const video = VIDEOS[service.id % VIDEOS.length];
   const items: MediaItem[] = [
-    { type: 'video', src: video, poster: imgs[0], fallback: imgs[0], alt: `${service.name} preview` },
+    // Poster/hero is always the category's strongest curated photo (base[0]).
+    { type: 'video', src: video, poster: base[0], fallback: base[0], alt: `${service.name} preview` },
   ];
   if (service.image_url) {
     items.push({ type: 'image', src: service.image_url, fallback: imgs[0], alt: service.name });
