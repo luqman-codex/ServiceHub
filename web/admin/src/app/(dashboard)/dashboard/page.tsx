@@ -21,12 +21,14 @@ import { StatusBreakdownChart } from '@/components/data/StatusBreakdownChart';
 import { BookingVolumeChart } from '@/components/data/BookingVolumeChart';
 import { RoleBreakdownList } from '@/components/data/RoleBreakdownList';
 import { RevenueCard } from '@/components/data/RevenueCard';
+import { AppShell } from '@/components/layout/AppShell';
 import { useAdminStats } from '@/lib/hooks/useAdminStats';
 
 export default function DashboardPage() {
   const { data, isLoading, isError, error, refetch } = useAdminStats();
 
   return (
+    <AppShell title="Dashboard">
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
@@ -139,5 +141,6 @@ export default function DashboardPage() {
       {/* Booking volume owns its own independent query (loading/empty/error/success). */}
       <BookingVolumeChart />
     </div>
+    </AppShell>
   );
 }
