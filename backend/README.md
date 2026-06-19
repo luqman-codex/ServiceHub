@@ -113,8 +113,8 @@ All paths below are relative to the base URL `http://localhost:4000/api/v1`.
 | | `PATCH /notifications/:id/read` · `PATCH /notifications/read-all` · `DELETE /notifications/:id` | Authenticated (own) |
 | **System** | `GET /health` (no prefix) · `GET /api/v1` | Public |
 
-Full request/response contracts, validation rules and the RBAC matrix live in
-`planning/02-API-CONTRACT.md`.
+Full request/response contracts are exercised by the Postman collection (see below); RBAC and
+per-field validation are enforced in `src/middlewares` and `src/validators`.
 
 ## Postman collection
 

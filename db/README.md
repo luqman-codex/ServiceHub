@@ -34,5 +34,6 @@ mysql -u root -p -e "CREATE DATABASE servicehub"
 mysql -u root -p servicehub < servicehub-with-seed.sql
 ```
 
-The full entity-relationship diagram (Mermaid + ASCII) and per-column documentation live in
-[`../planning/01-DATABASE-SCHEMA.md`](../planning/01-DATABASE-SCHEMA.md).
+The rendered entity-relationship diagram is [`erd.png`](erd.png) (source: [`erd.mmd`](erd.mmd)).
+Per-column definitions are the Sequelize models + migrations in `../backend/src/models` and
+`../backend/src/migrations`.

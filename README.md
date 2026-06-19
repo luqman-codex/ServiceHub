@@ -8,8 +8,8 @@ One backend REST API serves four clients: a **React Native mobile app** (custome
 website** (customers — mirrors the mobile app), a **Next.js provider portal** (providers manage
 their jobs & availability), and a **Next.js admin panel** (admins).
 
-> Built as a Full Stack Developer assignment. The full product spec and architecture decisions live
-> in [`planning/`](planning/) (master PRD, database schema, API contract, and per-surface PRDs).
+> Built as a Full Stack Developer assignment. The database schema, REST API, and per-surface setup
+> are documented in this README, the [`db/`](db/) folder, and each sub-app's own README.
 
 ---
 
@@ -65,9 +65,8 @@ API — the clients are thin views over the same contract.
 │   └── provider/       # Next.js provider portal (PROVIDER)     — jobs/availability/profile
 ├── mobile/             # React Native (Expo) customer app       — required
 ├── db/                 # schema.sql + seed dump (canonical source = backend migrations)
-├── docs/postman/       # Postman collection for the API
-├── planning/           # PRDs: master, schema, API contract, backend/web/RN, execution plan
-└── README.md           # you are here
+├── docs/                # DEPLOYMENT.md + Postman collection
+└── README.md            # you are here
 ```
 
 Each sub-project has its **own README** with detailed, app-specific instructions:
@@ -158,10 +157,9 @@ Base URL: **`http://localhost:4000/api/v1`** · Health: `GET /health` · 53 endp
 | Payments *(mocked)* | `POST/GET /bookings/:id/payment` · `GET /payments[/:id]` |
 | Notifications *(mocked)* | `GET /notifications` · `PATCH /:id/read` · `/read-all` · `DELETE /:id` |
 
-Full request/response shapes, the RBAC matrix, and validation rules:
-[planning/02-API-CONTRACT.md](planning/02-API-CONTRACT.md). Importable
+Full request/response shapes and the auth flow are exercised by the importable
 [Postman collection](docs/postman/ServiceHub.postman_collection.json) (the Login request auto-saves
-the JWT for authenticated calls).
+the JWT for authenticated calls); role-based access is enforced server-side in the backend.
 
 ---
 
@@ -171,8 +169,8 @@ Tables: `roles`, `users`, `provider_profiles`, `provider_availability`, `categor
 `bookings`, `payments`, `notifications`. Booking lifecycle:
 `PENDING → ACCEPTED / REJECTED → IN_PROGRESS → COMPLETED / CANCELLED`.
 
-Schema SQL + seed dump in [`db/`](db/); ERD + per-column docs in
-[planning/01-DATABASE-SCHEMA.md](planning/01-DATABASE-SCHEMA.md).
+Schema SQL + seed dump and the entity-relationship diagram are in [`db/`](db/)
+(see [`db/erd.png`](db/erd.png)); the Sequelize models live in `backend/src/models`.
 
 ---
 
@@ -195,9 +193,9 @@ Schema SQL + seed dump in [`db/`](db/); ERD + per-column docs in
 This project was built with **Claude Code** using a deliberate, reviewable process — which is the
 point of the exercise (use modern AI tooling, but ship understandable, production-ready code):
 
-1. **PRD-first.** Before any code, a complete spec set was written and **audited for cross-document
-   consistency and requirement coverage** ([`planning/`](planning/)). The database schema and API
-   contract are the single source of truth every client builds against.
+1. **Spec-first.** Before any code, a complete spec set (database schema + REST API contract) was
+   written and audited for cross-document consistency and requirement coverage, then used as the
+   single source of truth every client builds against.
 2. **Sequenced build** (Schema → Backend → Web → React Native), each layer implemented against the
    shared contract so names/types never drift.
 3. **Verification gates, not vibes.** The backend was tested against a live database (auth, RBAC,

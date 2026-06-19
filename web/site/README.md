@@ -5,9 +5,8 @@ service catalog, view service and category detail, book a service, pay for a
 booking, and manage their account (profile, bookings, notifications).
 
 This web app is a 1:1 mirror of the ServiceHub React Native customer app. Every
-screen here corresponds to a screen in the mobile app — see the
-**user-website ↔ React Native mirror table in §B.10** of
-`planning/04-WEB-PRD.md` for the exact mapping.
+screen here corresponds to a screen in the mobile app (same API and data shapes —
+only the view layer differs).
 
 ## Stack
 
@@ -94,11 +93,10 @@ Guests hitting an authenticated route are redirected to
 - **Layout**: a public `Header` + `NavBar` + `Footer` shell wraps every page
   (no admin sidebar). Account pages add an account sub-nav behind the gate.
 - **Data layer** (React Query key factory, axios client, error envelope, UI
-  primitives) is shared 1:1 with the admin app per `planning/04-WEB-PRD.md`
-  §6 / §0.1.
+  primitives) follows the same structure as the admin app (copied 1:1).
 
 ## Mirror with the mobile app
 
-For the authoritative per-screen mapping between this website and the
-React Native customer app, see **§B.10 (the user-website ↔ React Native mirror
-table)** in `planning/04-WEB-PRD.md`.
+This website's customer screens map screen-for-screen to the React Native app:
+`/services` ↔ Service List, `/services/[id]` ↔ Service Detail, `/book/[id]` ↔
+Create Booking, `/bookings` ↔ Booking History, `/account` ↔ Profile.
