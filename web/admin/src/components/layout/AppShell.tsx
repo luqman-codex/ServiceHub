@@ -41,7 +41,7 @@ export function AppShell({ title, children }: AppShellProps) {
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar title={title} onMenuClick={() => setMobileNavOpen(true)} />
         <main className={cn('flex-1 px-4 py-6 sm:px-6 lg:px-8')}>
-          <div className="mx-auto w-full max-w-7xl">{children}</div>
+          <div className="w-full">{children}</div>
         </main>
       </div>
     </div>
