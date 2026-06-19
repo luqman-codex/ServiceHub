@@ -2,10 +2,12 @@
 // service card used across Home and Browse. Links to the service detail page; shows
 // image, name, optional category badge, price (DECIMAL string) and duration.
 import Link from 'next/link';
-import { Clock, ImageOff } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { MoneyText } from './MoneyText';
 import type { ServiceDTO } from '@/types/api';
+import { serviceThumb, serviceThumbFallback } from '@/lib/media';
+import { SmartImage } from '@/components/ui/SmartImage';
 import { cn } from '@/lib/utils/cn';
 
 export interface ServiceCardProps {
@@ -34,19 +36,12 @@ export function ServiceCard({ service, className }: ServiceCardProps) {
       )}
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
-        {service.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={service.image_url}
-            alt={service.name}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-slate-300">
-            <ImageOff className="h-8 w-8" aria-hidden="true" />
-          </div>
-        )}
+        <SmartImage
+          src={serviceThumb(service)}
+          fallbackSrc={serviceThumbFallback(service)}
+          alt={service.name}
+          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+        />
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">

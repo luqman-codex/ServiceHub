@@ -7,3 +7,4 @@ export { StatusTimeline, type StatusTimelineProps } from './StatusTimeline';
 export { PaymentCard, type PaymentCardProps } from './PaymentCard';
 export { ServiceCard, type ServiceCardProps } from './ServiceCard';
 export { CategoryTile, type CategoryTileProps } from './CategoryTile';
+export { MediaGallery, type MediaGalleryProps } from './MediaGallery';
