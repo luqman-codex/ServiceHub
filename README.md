@@ -4,8 +4,9 @@ A full-stack **on-demand home-services platform** (Urban-Company / "Uber-for-ser
 **customers** browse and book services, **providers** accept and fulfil jobs, and **admins** manage
 users, the service catalog, pricing, and bookings.
 
-One backend REST API serves three clients: a **React Native mobile app** (customers), a **Next.js
-admin panel** (admins), and a **Next.js website** (customers — mirrors the mobile app).
+One backend REST API serves four clients: a **React Native mobile app** (customers), a **Next.js
+website** (customers — mirrors the mobile app), a **Next.js provider portal** (providers manage
+their jobs & availability), and a **Next.js admin panel** (admins).
 
 > Built as a Full Stack Developer assignment. The full product spec and architecture decisions live
 > in [`planning/`](planning/) (master PRD, database schema, API contract, and per-surface PRDs).
@@ -15,29 +16,23 @@ admin panel** (admins), and a **Next.js website** (customers — mirrors the mob
 ## Architecture
 
 ```
-        ┌──────────────────────┐        ┌──────────────────────┐
-        │  Mobile app (Expo /  │        │  Admin panel         │
-        │  React Native)       │        │  (Next.js · :3000)   │
-        │  CUSTOMER            │        │  ADMIN               │
-        └──────────┬───────────┘        └──────────┬───────────┘
-                   │                                │
-        ┌──────────┴───────────┐                    │
-        │  User website        │                    │
-        │  (Next.js · :3001)   │                    │
-        │  CUSTOMER            │                    │
-        └──────────┬───────────┘                    │
-                   │   REST + JWT (Bearer)           │
-                   └───────────────┬─────────────────┘
-                                   ▼
-                   ┌───────────────────────────────┐
-                   │  Backend API (:4000/api/v1)    │
-                   │  Node + TypeScript + Express    │
-                   │  Sequelize ORM · RBAC · JWT     │
-                   └───────────────┬─────────────────┘
-                                   ▼
-                            ┌──────────────┐
-                            │   MySQL DB   │
-                            └──────────────┘
+ ┌────────────────┐ ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+ │ Mobile app     │ │ User website   │ │ Provider portal│ │ Admin panel    │
+ │ (Expo / RN)    │ │ (Next.js :3001)│ │ (Next.js :3002)│ │ (Next.js :3000)│
+ │ CUSTOMER       │ │ CUSTOMER       │ │ PROVIDER       │ │ ADMIN          │
+ └───────┬────────┘ └───────┬────────┘ └───────┬────────┘ └───────┬────────┘
+         │                  │   REST + JWT      │                  │
+         └──────────────────┴────────┬──────────┴──────────────────┘
+                                      ▼
+                     ┌────────────────────────────────┐
+                     │  Backend API (:4000/api/v1)     │
+                     │  Node + TypeScript + Express     │
+                     │  Sequelize ORM · RBAC · JWT      │
+                     └────────────────┬─────────────────┘
+                                      ▼
+                               ┌──────────────┐
+                               │   MySQL DB   │
+                               └──────────────┘
 ```
 
 Role-based access control (`CUSTOMER` / `PROVIDER` / `ADMIN`) is enforced on every request by the
@@ -53,6 +48,7 @@ API — the clients are thin views over the same contract.
 | **Auth** | JWT (HS256) · bcryptjs · RBAC middleware | Stateless auth; role + ownership enforcement |
 | **Admin panel** | Next.js 14 (App Router) · TypeScript · React Query · Tailwind | Required; CSR dashboard behind auth |
 | **User website** | Next.js 14 · TypeScript · React Query · Tailwind | Bonus; mirrors the mobile customer journey |
+| **Provider portal** | Next.js 14 · TypeScript · React Query · Tailwind | Providers manage jobs (accept/reject/start/complete), availability, profile |
 | **Mobile app** | React Native (Expo SDK 56) · TypeScript · React Query · React Navigation | Required; one TS codebase for iOS + Android |
 | **Validation** | zod (server + web forms) · react-hook-form (forms) | One validation model mirrored client + server |
 
@@ -65,7 +61,8 @@ API — the clients are thin views over the same contract.
 ├── backend/            # Node + TS + Express + Sequelize REST API (53 endpoints)
 ├── web/
 │   ├── admin/          # Next.js admin panel (ADMIN)            — required
-│   └── site/           # Next.js customer website (CUSTOMER)    — bonus
+│   ├── site/           # Next.js customer website (CUSTOMER)    — bonus
+│   └── provider/       # Next.js provider portal (PROVIDER)     — jobs/availability/profile
 ├── mobile/             # React Native (Expo) customer app       — required
 ├── db/                 # schema.sql + seed dump (canonical source = backend migrations)
 ├── docs/postman/       # Postman collection for the API
@@ -74,7 +71,7 @@ API — the clients are thin views over the same contract.
 ```
 
 Each sub-project has its **own README** with detailed, app-specific instructions:
-[backend](backend/README.md) · [web/admin](web/admin/README.md) · [web/site](web/site/README.md) · [mobile](mobile/README.md)
+[backend](backend/README.md) · [web/admin](web/admin/README.md) · [web/site](web/site/README.md) · [web/provider](web/provider/README.md) · [mobile](mobile/README.md)
 
 ---
 
@@ -109,7 +106,15 @@ cp .env.example .env.local
 npm run dev                 # → http://localhost:3001
 ```
 
-### 4. Mobile app
+### 4. Provider portal
+```bash
+cd web/provider
+npm install
+cp .env.example .env.local
+npm run dev                 # → http://localhost:3002
+```
+
+### 5. Mobile app
 ```bash
 cd mobile
 npm install
@@ -175,12 +180,13 @@ Schema SQL + seed dump in [`db/`](db/); ERD + per-column docs in
 
 **Core (required) — done**
 - Customer mobile app: auth, browse services, book with date/time, history + status, profile
+- Provider portal: accept/reject/start/complete assigned jobs, manage availability & profile
 - Admin panel: login, manage users & providers, categories, services + pricing, bookings, dashboard counts
 - REST APIs for auth/users/services/bookings with role-based access, validation, centralized errors
 - Relational schema with migrations + seeders
 
-**Bonus — done:** customer website with mobile parity · mocked payment flow · mocked push notifications
-**Bonus — not included:** automated test suite · live deployment
+**Bonus — done:** customer website (mobile parity) · provider portal · mocked payment flow · mocked push notifications · automated tests (Jest + supertest, 29 passing) · deployment guide ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)) · Postman collection
+**Bonus — not done:** an *actually-hosted* live demo (step-by-step deploy instructions are provided instead)
 
 ---
 
