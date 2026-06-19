@@ -53,3 +53,6 @@ tmp/
 .claude/
 **/.claude/
 AGENTS.md
+
+# Internal planning docs (kept local, excluded from the repo)
+planning/
