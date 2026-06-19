@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens (04 §7.2): Inter font, slate-50 surface, indigo-600 brand. */
+:root {
+  --background: 248 250 252; /* slate-50 */
+  --foreground: 15 23 42; /* slate-900 */
+  --brand: 79 70 229; /* indigo-600 */
+  --brand-hover: 67 56 202; /* indigo-700 */
+  --border: 226 232 240; /* slate-200 */
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Visible focus ring for keyboard navigation (04 §7.4 accessibility). */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-slate-50;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-slate-200 bg-white;
+  }
+}

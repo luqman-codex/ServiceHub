@@ -1,0 +1,128 @@
+﻿Full Stack Developer Assignment
+On-Demand Service Application
+Assignment Duration: 48 Hours (2 Days)
+Overview
+You are required to design and develop an On-Demand Service Application (similar to platforms like Urban Company or Uber for services). The goal of this assignment is to evaluate your full-stack skills, architecture thinking, and ability to use modern tools (including AI tools) to build scalable applications efficiently.
+You are encouraged to use AI-powered development tools where appropriate, as long as the final output is well-structured, understandable, and production-ready.
+________________
+
+
+Core Idea
+Build an application where:
+* Users can browse services, book a service, and track requests
+* Service providers can accept/reject jobs and manage availability
+* Admins can manage users, services, pricing, and bookings
+________________
+
+
+Functional Requirements
+1. User App (Mobile)
+* User authentication (sign up / login)
+* View list of available services
+* Book a service with date & time
+* View booking history and status
+* Basic profile management
+Guidelines
+* You may use Lovable to design a mobile-app-level UI for inspiration
+* Convert or rebuild the UI into React Native
+* AI tools such as Cursor or similar are allowed
+________________
+
+
+2. Admin Panel (Web)
+* Admin login
+* Manage users (customers & service providers)
+* Manage services and categories
+* View and update booking status
+* Simple dashboard (bookings count, users count)
+Guidelines
+* You may use Lovable to generate the admin panel UI
+* Implement the admin panel using Next.js
+* Focus on clarity, usability, and clean structure
+________________
+
+
+3. Backend APIs
+* RESTful APIs for:
+   * Authentication
+   * Users
+   * Services
+   * Bookings
+* Role-based access (User / Provider / Admin)
+* Proper error handling and validation
+Backend Stack
+* Node.js
+* TypeScript
+* MySQL
+* Any Node.js framework of your choice (Express / Sequelize recommended)
+________________
+
+
+Required Technology Stack
+Frontend
+* TypeScript
+* React Native (Mobile App)
+* Next.js (Admin Panel & Website)
+* React Query (Server state management)
+Backend
+* Node.js with TypeScript
+* MySQL database
+* REST APIs
+Tooling (Optional but Encouraged)
+* Cursor or similar AI coding tools
+* Lovable for UI inspiration and rapid prototyping
+________________
+
+
+Database Requirements
+Design a basic relational schema including (but not limited to):
+* Users
+* Roles
+* Services
+* Bookings
+You may use raw SQL or an ORM.
+________________
+
+
+Non-Functional Requirements
+* Clean folder structure
+* Readable and maintainable code
+* Environment-based configuration
+* Proper API documentation (README or Postman collection)
+________________
+
+
+Deliverables
+1. GitHub repository (or zip file) containing:
+   * Backend code
+   * Admin panel code
+   * Mobile app code
+   * Website same as mobile app features (plus point)
+2. README.md with:
+   * Project overview
+   * Tech stack explanation
+   * Setup instructions
+   * Sample credentials (if applicable)
+3. Database schema (SQL file or diagram)
+________________
+
+
+Evaluation Criteria
+* Code quality & structure
+* Understanding of full-stack architecture
+* API design and database modeling
+* Effective use of TypeScript
+* Sensible use of AI tools
+* Completeness of core features
+________________
+
+
+Bonus (Optional)
+* Payment flow (mocked)
+* Push notification setup (mocked)
+* Deployment instructions or live demo
+* Unit or integration tests
+________________
+
+
+If you have any query, please contact at +966538696406 (whatsapp)

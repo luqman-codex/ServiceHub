@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment (secrets / machine-specific) — .env.example files ARE committed
+.env
+.env.local
+.env*.local
+**/.env
+!**/.env.example
+
+# Build / output artifacts
+dist/
+**/dist/
+build/
+**/build/
+.next/
+**/.next/
+out/
+**/out/
+dist-export/
+**/dist-export/
+
+# Expo / React Native
+.expo/
+**/.expo/
+*.hbc
+web-build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Test / coverage
+coverage/
+**/coverage/
+
+# Temp
+*.tmp
+tmp/
+
+# Local agent/editor config
+.claude/
+**/.claude/
+AGENTS.md

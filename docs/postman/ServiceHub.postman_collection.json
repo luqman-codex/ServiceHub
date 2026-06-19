@@ -1,0 +1,1190 @@
+{
+  "info": {
+    "_postman_id": "b3f1c2d4-5e6a-47b8-9c0d-1e2f3a4b5c6d",
+    "name": "ServiceHub REST API",
+    "description": "Postman collection for the ServiceHub On-Demand Service API (v1). Base path /api/v1. Auth is JWT Bearer; run 'POST /auth/login' first (seeded ADMIN by default) to populate the {{token}} collection variable automatically via its test script. All 53 endpoints from 02-API-CONTRACT.md §11 are included.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentication & token management (/auth).",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Casey Customer\",\n  \"email\": \"casey@example.com\",\n  \"password\": \"Passw0rd123\",\n  \"phone\": \"+10000000099\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Self-service signup. Always creates a CUSTOMER. Role: Public (no token)."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Store the access token from the login response into the collection variable",
+                  "// so subsequent authenticated requests use it via Bearer {{token}}.",
+                  "pm.test('login succeeded', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.collectionVariables.set('token', pm.response.json().data.access_token);",
+                  "console.log('token set from data.access_token');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@servicehub.test\",\n  \"password\": \"Admin@12345\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Authenticate and receive an access token. Role: Public. Test script stores data.access_token into the collection {{token}} variable so subsequent requests authenticate automatically. Default body uses the seeded ADMIN account."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Client-side logout acknowledgement. Role: any authenticated. Body: none."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "(Reserved) Refresh access token. Role: any authenticated. MVP returns 501 NOT_IMPLEMENTED."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Current authenticated principal (UserDTO). Role: any authenticated."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "description": "Self-service profile for the authenticated user (/profile).",
+      "item": [
+        {
+          "name": "GET /profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "description": "Get own profile (UserDTO). Role: any authenticated (own record)."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Casey Customer\",\n  \"phone\": \"+10000000099\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update own profile. Role: any authenticated (own record). email/role not editable here."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /profile/password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "password"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"Admin@12345\",\n  \"new_password\": \"Admin@67890\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Change own password. Role: any authenticated (own record)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /profile/provider",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/profile/provider?user_id=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "provider"],
+              "query": [
+                { "key": "user_id", "value": "2", "description": "ADMIN only: read another provider's profile", "disabled": true }
+              ]
+            },
+            "description": "Get own provider profile. Role: PROVIDER (own); ADMIN (any, via ?user_id=)."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /profile/provider",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/provider",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile", "provider"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Experienced home cleaning professional.\",\n  \"skills\": \"deep-cleaning,kitchen,bathroom\",\n  \"service_area\": \"Downtown\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create/replace own provider profile (upsert). Role: PROVIDER (own); ADMIN (any via body user_id). is_verified ignored unless ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "Admin user management (/users). Role: ADMIN.",
+      "item": [
+        {
+          "name": "GET /users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&page_size=20&sort_by=created_at&sort_order=desc&role=PROVIDER&is_active=true&q=casey",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "20" },
+                { "key": "sort_by", "value": "created_at", "description": "allow-list: id, name, email, created_at" },
+                { "key": "sort_order", "value": "desc" },
+                { "key": "role", "value": "PROVIDER", "description": "CUSTOMER|PROVIDER|ADMIN", "disabled": true },
+                { "key": "is_active", "value": "true", "disabled": true },
+                { "key": "q", "value": "casey", "disabled": true }
+              ]
+            },
+            "description": "List/search users (paginated UserDTO[]). Role: ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /users",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Provider\",\n  \"email\": \"newprovider@servicehub.test\",\n  \"password\": \"Provider@12345\",\n  \"role\": \"PROVIDER\",\n  \"phone\": \"+10000000010\",\n  \"is_active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create a user with any role (only way to create PROVIDER/ADMIN). Role: ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /users/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                { "key": "id", "value": "2", "description": "user id" }
+              ]
+            },
+            "description": "Get a user by id (UserDTO). Role: ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /users/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                { "key": "id", "value": "2", "description": "user id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pat Provider\",\n  \"phone\": \"+10000000002\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update user fields. Role: ADMIN. At least one field; email re-checked for uniqueness."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /users/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "status"],
+              "variable": [
+                { "key": "id", "value": "2", "description": "user id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Activate/deactivate a user. Role: ADMIN. An admin cannot deactivate their own account (409)."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /users/:id/role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "role"],
+              "variable": [
+                { "key": "id", "value": "4", "description": "user id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"PROVIDER\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Change a user's role. Role: ADMIN. An admin cannot demote their own account (409)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "description": "Service categories (/categories). Public reads; ADMIN writes.",
+      "item": [
+        {
+          "name": "GET /categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/categories?page=1&page_size=20&sort_by=name&sort_order=asc&is_active=true&q=clean",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "20" },
+                { "key": "sort_by", "value": "name", "description": "allow-list: id, name, created_at" },
+                { "key": "sort_order", "value": "asc" },
+                { "key": "is_active", "value": "true", "disabled": true },
+                { "key": "q", "value": "clean", "disabled": true }
+              ]
+            },
+            "description": "List categories. Role: Public. Public callers see is_active=true only."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /categories/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "category id" }
+              ]
+            },
+            "description": "Get a category by id (CategoryDTO). Role: Public."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /categories",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gardening\",\n  \"slug\": \"gardening\",\n  \"description\": \"Lawn and garden care\",\n  \"icon_url\": null,\n  \"is_active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create a category. Role: ADMIN. slug auto-derived from name if omitted."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /categories/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "category id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cleaning\",\n  \"description\": \"Home and office cleaning services\",\n  \"is_active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update a category (any subset of fields). Role: ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /categories/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "category id" }
+              ]
+            },
+            "description": "Soft-delete (deactivate) a category; sets is_active=false, returns 200. Role: ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "description": "Bookable services (/services). Public reads; ADMIN writes.",
+      "item": [
+        {
+          "name": "GET /services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/services?page=1&page_size=20&sort_by=created_at&sort_order=desc&category_id=1&is_active=true&q=cleaning&price_min=10&price_max=100&include=category",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "20" },
+                { "key": "sort_by", "value": "created_at", "description": "allow-list: id, name, price, created_at" },
+                { "key": "sort_order", "value": "desc" },
+                { "key": "category_id", "value": "1", "disabled": true },
+                { "key": "is_active", "value": "true", "disabled": true },
+                { "key": "q", "value": "cleaning", "disabled": true },
+                { "key": "price_min", "value": "10", "disabled": true },
+                { "key": "price_max", "value": "100", "disabled": true },
+                { "key": "include", "value": "category", "disabled": true }
+              ]
+            },
+            "description": "List/browse services. Role: Public. Public callers see is_active=true only."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /services/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/services/:id?include=category",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", ":id"],
+              "query": [
+                { "key": "include", "value": "category", "disabled": true }
+              ],
+              "variable": [
+                { "key": "id", "value": "1", "description": "service id" }
+              ]
+            },
+            "description": "Get a service by id (ServiceDTO). Role: Public."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /services",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 1,\n  \"name\": \"Deep Home Cleaning\",\n  \"description\": \"Full-home deep cleaning\",\n  \"price\": \"79.99\",\n  \"currency\": \"USD\",\n  \"duration_minutes\": 180,\n  \"image_url\": null,\n  \"is_active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create a service. Role: ADMIN. name unique within category."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /services/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/services/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "service id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Deep Home Cleaning\",\n  \"description\": \"Full-home deep cleaning\",\n  \"price\": \"84.99\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update a service (any subset of create fields incl. category_id). Role: ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /services/:id/price",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/services/:id/price",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", ":id", "price"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "service id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": \"89.99\",\n  \"currency\": \"USD\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update only the price. Role: ADMIN. Does not retroactively change existing bookings."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /services/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "service id" }
+              ]
+            },
+            "description": "Soft-delete (deactivate) a service; sets is_active=false, returns 200. Role: ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "description": "Bookings and state-transition actions (/bookings).",
+      "item": [
+        {
+          "name": "POST /bookings",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 1,\n  \"scheduled_at\": \"2026-06-25T10:00:00.000Z\",\n  \"address\": \"12 Maple St\",\n  \"notes\": \"Please bring eco supplies\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create a booking (starts PENDING; price snapshotted). Role: CUSTOMER (self) or ADMIN (may set customer_id/provider_id)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings?page=1&page_size=20&sort_by=scheduled_at&sort_order=desc&status=PENDING&service_id=1&customer_id=4&provider_id=2&scope=assigned&scheduled_from=2026-06-01T00:00:00.000Z&scheduled_to=2026-06-30T00:00:00.000Z&include=service,customer,provider,payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "20" },
+                { "key": "sort_by", "value": "scheduled_at", "description": "allow-list: id, scheduled_at, status, created_at" },
+                { "key": "sort_order", "value": "desc" },
+                { "key": "status", "value": "PENDING", "description": "BookingStatus filter", "disabled": true },
+                { "key": "service_id", "value": "1", "disabled": true },
+                { "key": "customer_id", "value": "4", "description": "ADMIN only", "disabled": true },
+                { "key": "provider_id", "value": "2", "description": "ADMIN only", "disabled": true },
+                { "key": "scope", "value": "assigned", "description": "PROVIDER only: assigned|available|all", "disabled": true },
+                { "key": "scheduled_from", "value": "2026-06-01T00:00:00.000Z", "disabled": true },
+                { "key": "scheduled_to", "value": "2026-06-30T00:00:00.000Z", "disabled": true },
+                { "key": "include", "value": "service,customer,provider,payment", "disabled": true }
+              ]
+            },
+            "description": "List bookings, scoped by role. CUSTOMER (own), PROVIDER (own + available), ADMIN (all)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /bookings/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id?include=service,customer,provider,payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id"],
+              "query": [
+                { "key": "include", "value": "service,customer,provider,payment", "disabled": true }
+              ],
+              "variable": [
+                { "key": "id", "value": "1", "description": "booking id" }
+              ]
+            },
+            "description": "Get one booking (BookingDTO). Role: CUSTOMER (own), PROVIDER (own/open job), ADMIN (any)."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /bookings/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "booking id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduled_at\": \"2026-06-27T10:00:00.000Z\",\n  \"address\": \"15 Maple St\",\n  \"notes\": \"Reschedule please\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Edit mutable booking details (scheduled_at/address/notes) while PENDING. Role: CUSTOMER (own, PENDING only) or ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/:id/accept",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "accept"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "booking id" }
+              ]
+            },
+            "description": "Transition PENDING -> ACCEPTED. Role: PROVIDER (own/open job) or ADMIN. Body: none."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/:id/reject",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "reject"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "booking id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancellation_reason\": \"Unavailable at requested time\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Transition PENDING -> REJECTED (terminal). Role: PROVIDER (own/open job) or ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/:id/start",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "start"],
+              "variable": [
+                { "key": "id", "value": "2", "description": "booking id" }
+              ]
+            },
+            "description": "Transition ACCEPTED -> IN_PROGRESS. Role: PROVIDER (assigned) or ADMIN. Body: none."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/:id/complete",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "complete"],
+              "variable": [
+                { "key": "id", "value": "2", "description": "booking id" }
+              ]
+            },
+            "description": "Transition IN_PROGRESS -> COMPLETED (terminal). Role: PROVIDER (assigned) or ADMIN. Body: none."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /bookings/:id/cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "cancel"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "booking id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancellation_reason\": \"Customer no longer needs the service\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Transition PENDING/ACCEPTED -> CANCELLED (terminal). Role: CUSTOMER (own; ACCEPTED within policy window) or ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /bookings/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "status"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "booking id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CANCELLED\",\n  \"cancellation_reason\": \"Admin override - scheduling conflict\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Admin sets any legal target status (incl. IN_PROGRESS -> CANCELLED override). Role: ADMIN only. cancellation_reason required when target is REJECTED/CANCELLED."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /bookings/:id/assign",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "assign"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "booking id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": 2\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Set or reassign the provider (null unassigns). Does not change status. Role: ADMIN only."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Provider Availability",
+      "description": "Provider weekly availability windows (/provider-availability, /providers/:providerId/availability).",
+      "item": [
+        {
+          "name": "GET /provider-availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/provider-availability?provider_id=2&day_of_week=MON&is_available=true&sort_by=day_of_week&sort_order=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["provider-availability"],
+              "query": [
+                { "key": "provider_id", "value": "2", "description": "ADMIN only", "disabled": true },
+                { "key": "day_of_week", "value": "MON", "disabled": true },
+                { "key": "is_available", "value": "true", "disabled": true },
+                { "key": "sort_by", "value": "day_of_week", "description": "allow-list: day_of_week, start_time, created_at" },
+                { "key": "sort_order", "value": "asc" }
+              ]
+            },
+            "description": "List own availability windows (paginated). Role: PROVIDER (own), ADMIN (any via ?provider_id=)."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /provider-availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/provider-availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["provider-availability"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day_of_week\": \"MON\",\n  \"start_time\": \"09:00:00\",\n  \"end_time\": \"17:00:00\",\n  \"is_available\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create an availability window. Role: PROVIDER (own), ADMIN (via body provider_id). end_time > start_time; tuple (provider_id, day_of_week, start_time) unique."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /provider-availability/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/provider-availability/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["provider-availability", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "availability window id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start_time\": \"10:00:00\",\n  \"end_time\": \"18:00:00\",\n  \"is_available\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update a window (any subset). Role: PROVIDER (own), ADMIN (any)."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /provider-availability/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/provider-availability/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["provider-availability", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "availability window id" }
+              ]
+            },
+            "description": "Hard-delete a window; returns 204 No Content. Role: PROVIDER (own), ADMIN (any)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /providers/:providerId/availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "noauth" },
+            "url": {
+              "raw": "{{baseUrl}}/providers/:providerId/availability?day_of_week=MON&is_available=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers", ":providerId", "availability"],
+              "query": [
+                { "key": "day_of_week", "value": "MON", "disabled": true },
+                { "key": "is_available", "value": "true", "disabled": true }
+              ],
+              "variable": [
+                { "key": "providerId", "value": "2", "description": "provider user id (must be a PROVIDER)" }
+              ]
+            },
+            "description": "Public read of a provider's availability windows (paginated). Role: Public."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin stats",
+      "description": "Admin dashboard & stats (/admin). Role: ADMIN.",
+      "item": [
+        {
+          "name": "GET /admin/stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats"]
+            },
+            "description": "Dashboard summary counts (users by role/status, bookings by status, catalog, revenue). Role: ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /admin/stats/bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats/bookings?from=2026-05-20T00:00:00.000Z&to=2026-06-19T00:00:00.000Z&group_by=day&status=COMPLETED",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats", "bookings"],
+              "query": [
+                { "key": "from", "value": "2026-05-20T00:00:00.000Z", "disabled": true },
+                { "key": "to", "value": "2026-06-19T00:00:00.000Z", "disabled": true },
+                { "key": "group_by", "value": "day", "description": "day|week|month" },
+                { "key": "status", "value": "COMPLETED", "disabled": true }
+              ]
+            },
+            "description": "Time-bucketed booking counts for charts. Role: ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "description": "Mocked payments (bonus). /bookings/:id/payment and /payments.",
+      "item": [
+        {
+          "name": "POST /bookings/:id/payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "payment"],
+              "variable": [
+                { "key": "id", "value": "3", "description": "booking id" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"MOCK\",\n  \"status\": \"PAID\",\n  \"transaction_ref\": \"MOCK-TXN-0002\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create/record a mocked payment for a booking (one per booking). Role: CUSTOMER (own booking) or ADMIN. amount/currency are server-set from the booking."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /bookings/:id/payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/:id/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", ":id", "payment"],
+              "variable": [
+                { "key": "id", "value": "3", "description": "booking id" }
+              ]
+            },
+            "description": "Get the payment for a booking (PaymentDTO). Role: CUSTOMER (own booking) or ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments?page=1&page_size=20&sort_by=created_at&sort_order=desc&status=PAID&method=MOCK&booking_id=3",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "20" },
+                { "key": "sort_by", "value": "created_at", "description": "allow-list: id, created_at, paid_at" },
+                { "key": "sort_order", "value": "desc" },
+                { "key": "status", "value": "PAID", "disabled": true },
+                { "key": "method", "value": "MOCK", "disabled": true },
+                { "key": "booking_id", "value": "3", "disabled": true }
+              ]
+            },
+            "description": "List all payments (paginated PaymentDTO[]). Role: ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /payments/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "payment id" }
+              ]
+            },
+            "description": "Get a payment by id (PaymentDTO). Role: ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "description": "Mocked notifications (bonus). /notifications. Own records only.",
+      "item": [
+        {
+          "name": "GET /notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?page=1&page_size=20&sort_by=created_at&sort_order=desc&is_read=false&type=BOOKING_CREATED",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "20" },
+                { "key": "sort_by", "value": "created_at", "description": "allow-list: created_at, is_read" },
+                { "key": "sort_order", "value": "desc" },
+                { "key": "is_read", "value": "false", "disabled": true },
+                { "key": "type", "value": "BOOKING_CREATED", "disabled": true }
+              ]
+            },
+            "description": "List own notifications (paginated; meta includes unread_count). Role: any authenticated (own)."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /notifications/:id/read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", ":id", "read"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "notification id" }
+              ]
+            },
+            "description": "Mark one notification as read (idempotent; sets is_read=true, read_at=now). Body: none. Role: any authenticated (own)."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /notifications/read-all",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/read-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "read-all"]
+            },
+            "description": "Mark all own notifications as read. Body: none. Role: any authenticated (own)."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /notifications/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", ":id"],
+              "variable": [
+                { "key": "id", "value": "1", "description": "notification id" }
+              ]
+            },
+            "description": "Hard-delete one own notification; returns 204 No Content. Role: any authenticated (own)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
